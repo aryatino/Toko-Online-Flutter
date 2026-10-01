@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mysample/services/session_service.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -9,8 +10,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Untuk mengambil isi username dan password
+  // Controller untuk mengambil isi username
   final usernameController = TextEditingController();
+
+  // Controller untuk mengambil isi password
   final passwordController = TextEditingController();
 
   // Untuk menampilkan / menyembunyikan password
@@ -29,25 +32,40 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Judul
+
+                // =========================
+                // JUDUL
+                // =========================
+
                 const Text(
                   'Welcome Back 👋',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
 
                 const SizedBox(height: 8),
 
                 const Text(
                   'Login untuk melanjutkan',
-                  style: TextStyle(color: Colors.grey, fontSize: 15),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 15,
+                  ),
                 ),
 
                 const SizedBox(height: 35),
 
-                // Username
+                // =========================
+                // USERNAME
+                // =========================
+
                 const Text(
                   'Username',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
 
                 const SizedBox(height: 8),
@@ -56,9 +74,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: usernameController,
                   decoration: InputDecoration(
                     hintText: 'Masukkan username',
-                    prefixIcon: const Icon(Icons.person_outline),
+
+                    prefixIcon: const Icon(
+                      Icons.person_outline,
+                    ),
+
                     filled: true,
                     fillColor: Colors.white,
+
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -68,28 +91,41 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 20),
 
-                // Password
+                // =========================
+                // PASSWORD
+                // =========================
+
                 const Text(
                   'Password',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
 
                 const SizedBox(height: 8),
 
                 TextField(
                   controller: passwordController,
+
+                  // false = password disembunyikan
+                  // true = password ditampilkan
                   obscureText: !passwordVisible,
+
                   decoration: InputDecoration(
                     hintText: 'Masukkan password',
-                    prefixIcon: const Icon(Icons.lock_outline),
 
-                    // Tombol lihat password
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                    ),
+
+                    // Tombol untuk melihat password
                     suffixIcon: IconButton(
                       onPressed: () {
                         setState(() {
                           passwordVisible = !passwordVisible;
                         });
                       },
+
                       icon: Icon(
                         passwordVisible
                             ? Icons.visibility
@@ -99,6 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     filled: true,
                     fillColor: Colors.white,
+
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -108,22 +145,123 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 30),
 
-                // Tombol Login
+                // =========================
+                // TOMBOL LOGIN
+                // =========================
+
                 SizedBox(
                   width: double.infinity,
                   height: 52,
+
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/home');
-                      // Nanti di sini kita buat proses login
+                    onPressed: () async {
+
+                      // Mengambil username dari TextField
+                      String username =
+                          usernameController.text.trim();
+
+                      // Mengambil password dari TextField
+                      String password =
+                          passwordController.text.trim();
+
+                      // =========================
+                      // CEK INPUT KOSONG
+                      // =========================
+
+                      if (username.isEmpty ||
+                          password.isEmpty) {
+
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Username dan password wajib diisi!',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+
+                        return;
+                      }
+
+                      // =========================
+                      // CEK LOGIN
+                      // =========================
+
+                      if (username == 'admin' &&
+                          password == '12345') {
+                            // simpan session login
+                            await SessionService.login(username);
+
+                            // pengaman, cek apakah halaman ini masih ada
+                            if (!mounted) return;
+
+                        // =========================
+                        // DATA DIRI
+                        // =========================
+
+                        Map<String, dynamic> dataDiri = {
+
+                          // Nama user
+                          'name': 'Arya',
+
+                          // Username yang digunakan login
+                          'username': username,
+
+                          // Umur
+                          'age': 30,
+
+                          // Role user
+                          'role': 'admin',
+
+                          // Status sesi login
+                          'session': true,
+
+                          // Waktu login
+                          'loginTime': DateTime.now(),
+                        };
+
+                        // =========================
+                        // PINDAH KE HOME
+                        // =========================
+
+                        Navigator.pushReplacementNamed(
+                          context,
+                          '/home',
+
+                          // Mengirim data ke NavigationExample
+                          arguments: {
+                            'data': dataDiri,
+                          },
+                        );
+
+                      } else {
+
+                        // =========================
+                        // LOGIN GAGAL
+                        // =========================
+
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Username atau password salah!',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
                       foregroundColor: Colors.white,
+
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
+
                     child: const Text(
                       'Login',
                       style: TextStyle(
@@ -136,25 +274,34 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 25),
 
-                // Menu Register
+                // =========================
+                // REGISTER
+                // =========================
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+
                     const Text(
                       'Belum punya akun? ',
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
                     ),
 
                     TextButton(
                       onPressed: () {
-                        // Pindah ke halaman register
+
+                        // Pindah ke halaman Register
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const RegisterScreen(),
+                            builder: (context) =>
+                                const RegisterScreen(),
                           ),
                         );
                       },
+
                       child: const Text('Daftar'),
                     ),
                   ],

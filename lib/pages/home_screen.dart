@@ -11,7 +11,7 @@ import 'detail_product_screen.dart';
 // =====================================================
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+  HomeScreen({super.key, Map<String, dynamic>? dataDiri});
 
   // ===================================================
   // DATA KATEGORI
@@ -232,6 +232,8 @@ class HomeScreen extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
         onTap: () {
+          List<String> dataDiri = ["nama", "umur", "alamat", "jenis kelamin"];
+          
           showDialog(
             context: context,
             builder: (context) {

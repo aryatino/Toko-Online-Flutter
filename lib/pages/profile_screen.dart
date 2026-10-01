@@ -5,6 +5,20 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Profile'));
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        actions: [
+          // tombol Logout
+          IconButton(
+            onPressed: () {
+              // logout
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
+      ),
+      body: Center(child: Text('Profile Username')),
+    );
   }
 }
